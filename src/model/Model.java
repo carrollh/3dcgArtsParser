@@ -8,25 +8,28 @@
 
 package model;
 
-import java.util.List;
+import java.util.LinkedList;
 
 public class Model {
 	
-	List<Mesh> meshes;
-	List<Material> materials;
+	public LinkedList<Face> facesList;
+	LinkedList<Point3D> vertices;
+	LinkedList<Point3D> normals;
+	LinkedList<Point2D> uvs;
+	LinkedList<Material> materials;
 	
-	/** Material
-	 * 
-	 * Struct-like class to hold all material 
-	 * attributes for a mesh. Things like the 
-	 * specularity, ambient light, and texture maps 
-	 * to use are stored in here.
-	 * 
-	 * @author carrollh
-	 *
-	 */
-	class Material {
+	public Model(LinkedList<Face> facesList,
+				 LinkedList<Point3D> vertices,
+				 LinkedList<Point3D> normals,
+				 LinkedList<Point2D> uvs,
+				 LinkedList<Material> materials) {
 		
-	};
+		this.facesList = facesList;
+		this.vertices = vertices;
+		this.normals = normals;
+		this.uvs = uvs;
+		this.materials = materials;
+
+	}
 	
 }

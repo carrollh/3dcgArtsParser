@@ -8,7 +8,7 @@
 
 package model;
 
-class Point3D extends Point2D {
+public class Point3D extends Point2D {
 
 	private float z;
 	
@@ -16,7 +16,7 @@ class Point3D extends Point2D {
 	protected float getY() { return getV(); }
 	protected float getZ() { return z; }
 	
-	Point3D(float x, float y, float z) 
+	public Point3D(float x, float y, float z) 
 	{
 		super(x, y);
 		this.z = z;

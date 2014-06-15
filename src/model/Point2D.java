@@ -8,14 +8,14 @@
 
 package model;
 
-class Point2D {
+public class Point2D {
 	private float u;
 	private float v;
 	
 	protected float getU() { return u; }
 	protected float getV() { return v; }
 	
-	Point2D(float u, float v) 
+	public Point2D(float u, float v) 
 	{
 		this.u = u;
 		this.v = v;

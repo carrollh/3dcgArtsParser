@@ -20,12 +20,12 @@ public abstract class OutputHandler implements IFileIO {
 	
 	@Override
 	public void openFile(String filepath) throws FileNotFoundException {
-		
+		fileScanner = new Scanner(filepath);
 	}
 
 	@Override
 	public void closeFileStream() {
-		
+		fileScanner.close();
 	}
 
 	public static void exportOBJ(Model model) {
