@@ -26,6 +26,7 @@ public class InputHandler implements IFileIO {
 	private static int readhead = 0;
 	private static String input = "";
 	private static String[] data;
+	private static String type;
 	
 	@Override
 	public void openFile(String address) throws IOException {
@@ -44,12 +45,16 @@ public class InputHandler implements IFileIO {
 		
 		System.out.println("downloading...");
 		
-		// first two lines are junk (to us)
-		bufferedReader.readLine();
-		bufferedReader.readLine();
-		
-		// get the important line from the server
-		input = bufferedReader.readLine();
+		boolean foundValidInput = false;
+		while(!foundValidInput && input != null) {
+			input = bufferedReader.readLine();
+			
+			int foundData = 0;
+			
+			if(input != null) foundData = input.indexOf("var m");
+			
+			if(foundData != -1) foundValidInput = true;
+		}
 		
 		return new Model(parseFaces(),
 						 parseVertices(),
@@ -65,20 +70,21 @@ public class InputHandler implements IFileIO {
 		readhead = input.indexOf("faces") + 9;
 		int matPtr = input.indexOf("materials") - 4;
 		
+		System.out.println("readhead: " + readhead);
+		System.out.println("matPtr: " + matPtr);
+		
 		data = input.substring(readhead, matPtr).split(",");
 		readhead = 0;
 
 		LinkedList<Face> faces = new LinkedList<Face>();
 		
 		while(readhead < data.length) {
-			output.add(parseSingleFace(data[readhead]));
+			output.add(parseSingleFace(data[readhead++]));
 							
-			if(data[readhead].charAt(0) == '[') {
+			if(data[readhead - 1].charAt(0) == '[') {
 				// fix the first vert index in the next face list
-				data[readhead] = data[readhead].substring(1);
+				data[readhead - 1] = data[readhead - 1].substring(1);
 			}
-			
-			readhead++;
 		}
 		
 		return output;
@@ -86,10 +92,11 @@ public class InputHandler implements IFileIO {
 	
 	private Face parseSingleFace(String facetype) {
 		int[] vertIndices = null;
+		type = facetype;
 		
-		if(facetype.equals("43")) 
+		if(facetype.equals("43") || facetype.equals("11")) 
 			vertIndices = parseQuad();
-		else if(facetype.equals("42"))
+		else if(facetype.equals("42") || facetype.equals("10"))
 			vertIndices = parseTri();
 		
 		return new Face(vertIndices);
@@ -101,8 +108,10 @@ public class InputHandler implements IFileIO {
 		output[1] = parseInt();
 		output[2] = parseInt();
 		output[3] = parseInt();
-		readhead += 9;
 		
+		if(type.equals("43")) readhead += 9;
+		else if(type.equals("11")) readhead += 5;
+	
 		return output;
 	}
 	
@@ -111,8 +120,10 @@ public class InputHandler implements IFileIO {
 		output[0] = parseInt();
 		output[1] = parseInt();
 		output[2] = parseInt();
-		readhead += 7;
 
+		if(type.equals("42")) readhead += 7;
+		else if(type.equals("10")) readhead += 4;
+		
 		return output;
 	}
 	
@@ -154,7 +165,8 @@ public class InputHandler implements IFileIO {
 		
 		return output;
 	}
-
+	
+	
 	private LinkedList<Material> parseMaterials() {
 		LinkedList<Material> output = new LinkedList<Material>();
 		System.out.println("parsing materials...");

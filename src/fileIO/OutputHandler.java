@@ -29,7 +29,7 @@ public abstract class OutputHandler implements IFileIO {
 	}
 
 	public static void exportOBJ(Model model) {
-		
+		System.out.println(model);
 	}
 	
 }

@@ -12,24 +12,35 @@ import java.util.LinkedList;
 
 public class Model {
 	
-	public LinkedList<Face> facesList;
+	public LinkedList<Face> faces;
 	LinkedList<Point3D> vertices;
 	LinkedList<Point3D> normals;
 	LinkedList<Point2D> uvs;
 	LinkedList<Material> materials;
 	
-	public Model(LinkedList<Face> facesList,
+	public Model(LinkedList<Face> faces,
 				 LinkedList<Point3D> vertices,
 				 LinkedList<Point3D> normals,
 				 LinkedList<Point2D> uvs,
 				 LinkedList<Material> materials) {
 		
-		this.facesList = facesList;
+		this.faces = faces;
 		this.vertices = vertices;
 		this.normals = normals;
 		this.uvs = uvs;
 		this.materials = materials;
 
+	}
+
+	@Override
+	public String toString() {
+		String output = "";
+		
+		for(int i = 0; i < faces.size(); i++) {
+			output += "f " + faces.get(i) + "\n";
+		}
+		
+		return output;
 	}
 	
 }

@@ -18,12 +18,10 @@ public class Program {
 		
 		try {
 			
-			//inputHandler.openFile("http://www.3dcg-arts.net/api/model/get/three_format/2827");
-			inputHandler.openFile("data.htm");
+			//inputHandler.openFile("http://www.3dcg-arts.net/api/model/get/three_format/5696 or 2827");
+			inputHandler.openFile("usc.htm");
 			Model model = inputHandler.parse3dcgFile();
 			inputHandler.closeFileStream();
-			
-			System.out.println(model.facesList.size());
 			
 			OutputHandler.exportOBJ(model);
 		
