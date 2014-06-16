@@ -23,8 +23,10 @@ public class Program {
 			Model model = inputHandler.parse3dcgFile();
 			inputHandler.closeFileStream();
 			
-			OutputHandler.exportOBJ(model);
-		
+			if(model != null) OutputHandler.exportOBJ(model);
+			else {
+				System.out.println("Error processing file.");
+			}
 		}
 		catch (IOException e) {
 			e.printStackTrace();

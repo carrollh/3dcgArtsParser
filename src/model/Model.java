@@ -19,17 +19,16 @@ public class Model {
 	LinkedList<Material> materials;
 	
 	public Model(LinkedList<Face> faces,
-				 LinkedList<Point3D> vertices,
 				 LinkedList<Point3D> normals,
+				 LinkedList<Point3D> vertices, 
 				 LinkedList<Point2D> uvs,
 				 LinkedList<Material> materials) {
 		
 		this.faces = faces;
-		this.vertices = vertices;
 		this.normals = normals;
+		this.vertices = vertices;
 		this.uvs = uvs;
 		this.materials = materials;
-
 	}
 
 	@Override
