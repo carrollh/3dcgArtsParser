@@ -5,15 +5,11 @@
  * 
  */
 
-package fileIO;
+package model;
 import java.io.IOException;
 import java.util.LinkedList;
 
-import model.Face;
-import model.Material;
-import model.Model;
-import model.Point2D;
-import model.Point3D;
+import fileIO.InputHandler;
 
 public abstract class Parser {
 	private static String[] data;
@@ -29,12 +25,13 @@ public abstract class Parser {
 	 */
 	public static Model parseModel() {
 		return new Model(parseFaces(),
-						 parseNormals(),
+						 parseNormalIndices(),
 						 parseVertices(),
+						 parseNormals(),
 						 parseUVs(),
 						 parseMaterials());
 	}
-	
+
 	/**
 	 * Extract all the faces from the input string.
 	 * It first loads the data[] buffer with just the 
@@ -43,15 +40,12 @@ public abstract class Parser {
 	 * of each face.
 	 * @return
 	 */
-	private static LinkedList<Face> parseFaces() {
-		LinkedList<Face> output = new LinkedList<Face>();
+	private static LinkedList<IndexSet> parseFaces() {
+		LinkedList<IndexSet> output = new LinkedList<IndexSet>();
 		System.out.println("parsing face data...");	
 		
 		readhead = InputHandler.input.indexOf("faces") + 9;
 		int matPtr = InputHandler.input.indexOf("materials") - 4;
-		
-		//System.out.println("readhead: " + readhead);
-		//System.out.println("matPtr: " + matPtr);
 		
 		data = InputHandler.input.substring(readhead, matPtr).split(",");
 		readhead = 0;
@@ -72,10 +66,11 @@ public abstract class Parser {
 	
 	/**
 	 * Determine which type of face currently at the 
-	 * readhead, and call the appropriate helper method.
+	 * readhead, and call the appropriate helper method
+	 * to read 3 or 4 face vertex indices.
 	 * @return
 	 */
-	private static Face parseSingleFace() {
+	private static IndexSet parseSingleFace() {
 		int[] vertIndices = null;
 		
 		if(facetype.equals("43") || facetype.equals("11")) 
@@ -83,20 +78,16 @@ public abstract class Parser {
 		else if(facetype.equals("42") || facetype.equals("10"))
 			vertIndices = parseTri();
 		
-		return new Face(vertIndices);
+		return new IndexSet(vertIndices);
 	}
 	
 	/**
-	 * Extract a single Quad's vertex indices. 
+	 * Extract a single Quad's vertex indices or normals. 
 	 * Helper method for parseFaces().
 	 * @return
 	 */
 	private static int[] parseQuad() {
-		int[] output = new int[4];
-		output[0] = parseInt();
-		output[1] = parseInt();
-		output[2] = parseInt();
-		output[3] = parseInt();
+		int[] output = parse4Ints();
 		
 		if(facetype.equals("43")) readhead += 9;
 		else if(facetype.equals("11")) readhead += 5;
@@ -105,19 +96,26 @@ public abstract class Parser {
 	}
 	
 	/**
-	 * Extract a single Tri's vertex indices. 
+	 * Extract a single Tri's vertex indices or normals. 
 	 * Helper method for parseFaces().
 	 * @return
 	 */
 	private static int[] parseTri() {
-		int[] output = new int[3];
-		output[0] = parseInt();
-		output[1] = parseInt();
-		output[2] = parseInt();
+		int[] output = parse3Ints();
 
 		if(facetype.equals("42")) readhead += 7;
 		else if(facetype.equals("10")) readhead += 4;
 		
+		return output;
+	}
+	
+	private static int[] parse4Ints() {
+		int[] output = { parseInt(), parseInt(), parseInt(), parseInt()};
+		return output;
+	}
+	
+	private static int[] parse3Ints() {
+		int[] output = { parseInt(), parseInt(), parseInt() };
 		return output;
 	}
 	
@@ -132,30 +130,89 @@ public abstract class Parser {
 	 * 
 	 * @return
 	 */
-	private static LinkedList<Point3D> parseNormals() {
-		LinkedList<Point3D> output = new LinkedList<Point3D>();
-		System.out.println("parsing normals...");
+	private static LinkedList<IndexSet> parseNormalIndices() {
+		LinkedList<IndexSet> output = new LinkedList<IndexSet>();
+		System.out.println("parsing normal indices...");	
 		
-		// normal data is stored in the faces data, so we don't
-		// need to reload the data[] from input
-		
-		
+		readhead = 0;
+
+		while(readhead < data.length) {
+
+			facetype = data[readhead++];
+			output.add(parseSingleNormalSet());
+		}
 		
 		return output;
 	}
 	
+	/**
+	 * Determine which type of face currently at the 
+	 * readhead, and call the appropriate helper method 
+	 * to read 3 or 4 normal indices.
+	 * @return
+	 */
+	private static IndexSet parseSingleNormalSet() {
+		IndexSet output = null;
+		int[] normalIndices = null;
+		
+		switch(facetype) {
+		case "42":
+				readhead += 3;
+		case "10":
+				readhead += 4;
+				normalIndices = parse3Ints();
+			break;
+		case "43":
+				readhead += 4;
+		case "11": 
+				readhead += 5;
+				normalIndices = parse4Ints();
+			break;
+		}
+		
+		output = new IndexSet(normalIndices);
+		
+		return output;
+	}
+
 	
 	private static LinkedList<Point3D> parseVertices() {
 		LinkedList<Point3D> output = new LinkedList<Point3D>();
 		System.out.println("parsing vert data...");
 		
+		readhead = InputHandler.input.indexOf("vertices") + 12;
+		int end = InputHandler.input.lastIndexOf("]]");
+		data = InputHandler.input.substring(readhead, end).split(",");
+		readhead = 0;
+
+		while(readhead < data.length) {
+			output.add(new Point3D(parseFloat(), parseFloat(), parseFloat()));
+		}
 		
 		return output;
+	}
+	
+	private static float parseFloat() {
+		return Float.parseFloat(data[readhead++]);
+	}
+	
+	private static LinkedList<Point3D> parseNormals() {
+		
+		return null;
 	}
 	
 	private static LinkedList<Point2D> parseUVs() {
 		LinkedList<Point2D> output = new LinkedList<Point2D>();
 		System.out.println("parsing uvs...");
+		
+		readhead = InputHandler.input.indexOf("uvs") + 8;
+		int end = InputHandler.input.lastIndexOf("]]]");
+		data = InputHandler.input.substring(readhead, end).split(",");
+		readhead = 0;
+		
+		while(readhead < data.length) {
+			output.add(new Point2D(parseFloat(), parseFloat()));
+		}
 		
 		return output;
 	}
@@ -163,18 +220,6 @@ public abstract class Parser {
 	private static int parseInt() {
 		return Integer.parseInt(data[readhead++]);
 	} 
-	
-	private static Point3D parsePoint3D() {
-		Point3D output = new Point3D(0f, 0f, 0f);
-		
-		return output;
-	}
-	
-	private static Point2D parsePoint2D() {
-		Point2D output = new Point2D(0f, 0f);
-		
-		return output;
-	}
 	
 	private static LinkedList<Material> parseMaterials() {
 		LinkedList<Material> output = new LinkedList<Material>();

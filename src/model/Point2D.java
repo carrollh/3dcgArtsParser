@@ -20,4 +20,9 @@ public class Point2D {
 		this.u = u;
 		this.v = v;
 	}
+	
+	@Override
+	public String toString() {
+		return u + " " + v;
+	}
 }
