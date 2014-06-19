@@ -10,42 +10,45 @@
 package fileIO;
 
 import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.Scanner;
 
 import model.*;
 
-public abstract class OutputHandler implements IFileIO {
+public class OutputHandler implements IFileIO {
 	
-	private static Scanner fileScanner;
+	private static PrintWriter file;
 	private static String output = "";
+	public static Model model = null;
+	public static Material mtl = null;
 	
 	@Override
 	public void openFile(String filepath) throws FileNotFoundException {
-		fileScanner = new Scanner(filepath);
+		file = new PrintWriter(filepath);
 	}
 
 	@Override
 	public void closeFileStream() {
-		fileScanner.close();
+		file.close();
 	}
 
-	public static void exportOBJ(Model model) {
-		System.out.println("Exporting to files...");
+	public static void exportOBJ() {
+		System.out.println("Exporting obj file...");
 		
 		//int extIndex = material.getName().lastIndexOf(".");
 		String materialName = "Material";
 		//materialName = "o " + material.getName().substring(0,extIndex) + "\n";
 		
-		System.out.print("mtllib <materialName + .mtl>\n");
+		file.print("mtllib " + materialName + "\n");
 		
-		System.out.print(gatherVertexData(model));
-		System.out.print(gatherUVData(model));
-		System.out.print("usemtl " + materialName + "\ns off \n");
-		System.out.print(gatherFaceTextureNormalData(model));
+		file.print(gatherVertexData());
+		file.print(gatherUVData());
+		file.print("usemtl " + materialName + "\ns off \n");
+		file.print(gatherFaceTextureNormalData());
 	}
 
-	private static String gatherVertexData(Model model) {
+	private static String gatherVertexData() {
 		String output = "";
 		LinkedList<Point3D> verts = model.getVertices();
 		
@@ -56,7 +59,7 @@ public abstract class OutputHandler implements IFileIO {
 		return output;
 	}
 	
-	private static String gatherUVData(Model model) {
+	private static String gatherUVData() {
 		output = "";
 		
 		LinkedList<Point2D> uvs = model.getUVs();
@@ -68,7 +71,7 @@ public abstract class OutputHandler implements IFileIO {
 		return output;
 	}
 	
-	private static String gatherFaceTextureNormalData(Model model) {
+	private static String gatherFaceTextureNormalData() {
 		output = "";
 		LinkedList<IndexSet> faces = model.getFaces();
 		LinkedList<IndexSet> normalSet = model.getNormalIndices();
@@ -87,5 +90,22 @@ public abstract class OutputHandler implements IFileIO {
 		}
 		
 		return output;
+	}
+	
+	public static void exportMTL() {
+		System.out.println("Exporting mtl file...");
+		
+		int extIndex = mtl.getName().lastIndexOf(".");
+		String materialName = mtl.getName().substring(0, extIndex); //= "Material";
+		
+		System.out.println("newmtl " + materialName);
+		System.out.println("Ns " + mtl.getNs());
+		System.out.println("Ka " + mtl.getKa());
+		System.out.println("Kd " + mtl.getKd());
+		System.out.println("Ks " + mtl.getKs());
+		System.out.println("Ni " + mtl.getNi());
+		System.out.println("d " + mtl.getD());
+		System.out.println("illum " + mtl.getIllum());
+		System.out.println("map_Kd " + mtl.getMap_Kd());
 	}
 }

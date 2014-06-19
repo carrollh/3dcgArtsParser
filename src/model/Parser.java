@@ -1,6 +1,6 @@
 /** Parser.java
  * 
- * Abstract class used to extract all of the data from
+ * Abstract class used to extract all of the objData from
  * the input string.
  * 
  */
@@ -12,15 +12,16 @@ import java.util.LinkedList;
 import fileIO.InputHandler;
 
 public abstract class Parser {
-	private static String[] data;
+	private static String[] objData;
 	private static int readhead = 0;
 	private static String facetype;
+	private static String mtlData = "";
 	
 	/**
 	 * Primary hub method that calls all of the top level
 	 * methods required to build a Model class instance.
 	 * TODO: Replace with Factory design pattern if further 
-	 * test cases handle the normal data differently.
+	 * test cases handle the normal objData differently.
 	 * @return
 	 */
 	public static Model parseModel() {
@@ -34,30 +35,30 @@ public abstract class Parser {
 
 	/**
 	 * Extract all the faces from the input string.
-	 * It first loads the data[] buffer with just the 
-	 * relevant data, then calls helper methods based on
+	 * It first loads the objData[] buffer with just the 
+	 * relevant objData, then calls helper methods based on
 	 * which face type if finds in the first index location 
 	 * of each face.
 	 * @return
 	 */
 	private static LinkedList<IndexSet> parseFaces() {
 		LinkedList<IndexSet> output = new LinkedList<IndexSet>();
-		System.out.println("parsing face data...");	
+		System.out.println("parsing face objData...");	
 		
 		readhead = InputHandler.input.indexOf("faces") + 9;
 		int matPtr = InputHandler.input.indexOf("materials") - 4;
 		
-		data = InputHandler.input.substring(readhead, matPtr).split(",");
+		objData = InputHandler.input.substring(readhead, matPtr).split(",");
 		readhead = 0;
 
-		while(readhead < data.length) {
+		while(readhead < objData.length) {
 
-			facetype = data[readhead++];
+			facetype = objData[readhead++];
 			output.add(parseSingleFace());
 							
-			if(data[readhead - 1].charAt(0) == '[') {
+			if(objData[readhead - 1].charAt(0) == '[') {
 				// fix the first vert index in the next face list
-				data[readhead - 1] = data[readhead - 1].substring(1);
+				objData[readhead - 1] = objData[readhead - 1].substring(1);
 			}
 		}
 		
@@ -120,9 +121,9 @@ public abstract class Parser {
 	}
 	
 	/**
-	 * Extract just the normal data from the input.
-	 * This method needs to be called while the data[] 
-	 * buffer is still full of the 'faces' data, since
+	 * Extract just the normal objData from the input.
+	 * This method needs to be called while the objData[] 
+	 * buffer is still full of the 'faces' objData, since
 	 * they are stored together for this input model format.
 	 * 
 	 * TODO: verify that the other model types for the 
@@ -136,9 +137,9 @@ public abstract class Parser {
 		
 		readhead = 0;
 
-		while(readhead < data.length) {
+		while(readhead < objData.length) {
 
-			facetype = data[readhead++];
+			facetype = objData[readhead++];
 			output.add(parseSingleNormalSet());
 		}
 		
@@ -157,13 +158,21 @@ public abstract class Parser {
 		
 		switch(facetype) {
 		case "42":
-				readhead += 3;
+				//readhead += 3;
+			readhead += 4;
+			normalIndices = parse3Ints();
+			readhead += 3;
+			break;
 		case "10":
 				readhead += 4;
 				normalIndices = parse3Ints();
 			break;
 		case "43":
-				readhead += 4;
+				//readhead += 4;
+			readhead += 5;
+			normalIndices = parse4Ints();
+			readhead += 4;
+			break;
 		case "11": 
 				readhead += 5;
 				normalIndices = parse4Ints();
@@ -178,14 +187,14 @@ public abstract class Parser {
 	
 	private static LinkedList<Point3D> parseVertices() {
 		LinkedList<Point3D> output = new LinkedList<Point3D>();
-		System.out.println("parsing vert data...");
+		System.out.println("parsing vert objData...");
 		
 		readhead = InputHandler.input.indexOf("vertices") + 12;
 		int end = InputHandler.input.lastIndexOf("]]");
-		data = InputHandler.input.substring(readhead, end).split(",");
+		objData = InputHandler.input.substring(readhead, end).split(",");
 		readhead = 0;
 
-		while(readhead < data.length) {
+		while(readhead < objData.length) {
 			output.add(new Point3D(parseFloat(), parseFloat(), parseFloat()));
 		}
 		
@@ -193,7 +202,7 @@ public abstract class Parser {
 	}
 	
 	private static float parseFloat() {
-		return Float.parseFloat(data[readhead++]);
+		return Float.parseFloat(objData[readhead++]);
 	}
 	
 	private static LinkedList<Point3D> parseNormals() {
@@ -207,10 +216,10 @@ public abstract class Parser {
 		
 		readhead = InputHandler.input.indexOf("uvs") + 8;
 		int end = InputHandler.input.lastIndexOf("]]]");
-		data = InputHandler.input.substring(readhead, end).split(",");
+		objData = InputHandler.input.substring(readhead, end).split(",");
 		readhead = 0;
 		
-		while(readhead < data.length) {
+		while(readhead < objData.length) {
 			output.add(new Point2D(parseFloat(), parseFloat()));
 		}
 		
@@ -218,7 +227,18 @@ public abstract class Parser {
 	}
 	
 	private static int parseInt() {
-		return Integer.parseInt(data[readhead++]);
+		int output = 0;
+		try {
+			output = Integer.parseInt(objData[readhead]);
+			readhead++;
+		}
+		catch(NumberFormatException e) {
+			if(objData[readhead].charAt(0) == '[') 
+				objData[readhead] = objData[readhead].substring(1);
+			return parseInt();
+		}
+		
+		return output;
 	} 
 	
 	private static LinkedList<Material> parseMaterials() {
@@ -227,5 +247,68 @@ public abstract class Parser {
 			
 		
 		return output;
+	}
+	
+	public static Material parseMTL() {
+		
+		int start = InputHandler.input.indexOf("materials") + 13;
+		int end = InputHandler.input.indexOf("morphColors") - 4;
+		mtlData = InputHandler.input.substring(start, end);
+		
+		return new Material(parseString("DbgName\":\""), 
+							parseFloat("specularCoef\":"),
+							parsePoint3D("colorAmbient\":["),
+							parsePoint3D("colorDiffuse\":["),
+							parsePoint3D("colorSpecular\":["),
+							parseFloat("opticalDensity\":"),
+							parseFloat("transparency\":"),
+							(byte)parseInt("illumination\":"),
+							parseString("mapAlpha\":\""));
+	}
+	
+	private static String parseString(String query) {
+		String temp = "";
+		
+		int start = mtlData.indexOf(query);
+		if(start > 0) temp = mtlData.substring(start);
+		int end = temp.indexOf("\",");
+		if(end > 0)	return temp.substring(query.length(), end);
+		return "";
+	}
+	
+	private static float parseFloat(String query) {
+		int start = mtlData.indexOf(query);
+		System.out.println("trying to find: " + query);
+		String temp = mtlData.substring(start);
+		int end = temp.indexOf(",");
+		if(end < 0) end = temp.length() - 1;
+		
+		return Float.parseFloat(temp.substring(query.length(), end));
+	}
+	
+	private static Point3D parsePoint3D(String query) {
+		int start = mtlData.indexOf(query);
+		String temp = mtlData.substring(start);
+		int end = temp.indexOf(",");
+		float x = Float.parseFloat(temp.substring(query.length(), end));
+		
+		temp = temp.substring(end + 1);
+		end = temp.indexOf(",");
+		float y = Float.parseFloat(temp.substring(0, end));
+		
+		temp = temp.substring(end + 1);
+		end = temp.indexOf("]");
+		float z = Float.parseFloat(temp.substring(0, end));
+		
+		return new Point3D(x, y, z);
+	}
+	
+	private static int parseInt(String query) {
+		int start = mtlData.indexOf(query);
+		String temp = mtlData.substring(start);
+		int end = temp.indexOf(",");
+		if(end < 0) end = temp.length() - 1;
+		
+		return Integer.parseInt(temp.substring(query.length(), end));
 	}
 }

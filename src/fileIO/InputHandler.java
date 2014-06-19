@@ -25,9 +25,9 @@ public class InputHandler implements IFileIO {
 	
 	@Override
 	public void openFile(String address) throws IOException {
-		//URL url = new URL(address);
-		//bufferedReader = new BufferedReader(new InputStreamReader(url.openStream()));
-		bufferedReader = new BufferedReader(new FileReader(address));
+		URL url = new URL(address);
+		bufferedReader = new BufferedReader(new InputStreamReader(url.openStream()));
+		//bufferedReader = new BufferedReader(new FileReader(address));
 	}
 	
 	@Override
@@ -35,7 +35,7 @@ public class InputHandler implements IFileIO {
 		bufferedReader.close();
 	}
 	
-	public Model parse3dcgFile() throws IOException {
+	public void parse3dcgFile() throws IOException {
 		
 		System.out.println("downloading...");
 		
@@ -50,12 +50,11 @@ public class InputHandler implements IFileIO {
 			if(foundData != -1) {
 				System.out.println("Found a valid line of data in input stream");
 				foundValidInput = true;
-				return Parser.parseModel();
+				OutputHandler.model = Parser.parseModel();
+				//OutputHandler.mtl = Parser.parseMTL();
 			}
-		}
-		
-		System.out.println("Could not find any line containing the model data, aborting");
-		
-		return null;
+			else System.out.println("Could not find any line containing the model data, aborting");
+ 
+		}		
 	}
 }

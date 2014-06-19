@@ -18,12 +18,22 @@ public class Program {
 		
 		try {
 			
-			//inputHandler.openFile("http://www.3dcg-arts.net/api/model/get/three_format/5696 or 2827");
-			inputHandler.openFile("usc.htm");
-			Model model = inputHandler.parse3dcgFile();
+			inputHandler.openFile("http://www.3dcg-arts.net/api/model/get/three_format/450");
+			//inputHandler.openFile("usc.htm");
+			inputHandler.parse3dcgFile();
 			inputHandler.closeFileStream();
 			
-			if(model != null) OutputHandler.exportOBJ(model);
+			if(OutputHandler.model != null) {
+				OutputHandler outputHandler = new OutputHandler();
+				outputHandler.openFile("out.obj");
+				
+				OutputHandler.exportOBJ();
+				if(OutputHandler.mtl != null) {
+					//OutputHandler.exportMTL();
+				}
+				
+				outputHandler.closeFileStream();
+			}
 			else {
 				System.out.println("Error processing file.");
 			}
