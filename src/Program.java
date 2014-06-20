@@ -9,36 +9,53 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import fileIO.*;
-import model.Model;
+import model.ModelOLD;
 
 public class Program {
 	public static void main(String[] args) {
+		
+		// Open the stream catch some exceptions
+		
+		
+		
+		
+		
+		
 		
 		InputHandler inputHandler = new InputHandler();
 		
 		try {
 			
-			inputHandler.openFile("http://www.3dcg-arts.net/api/model/get/three_format/450");
-			//inputHandler.openFile("usc.htm");
+			//inputHandler.openFile("http://www.3dcg-arts.net/api/model/get/three_format/");
+			inputHandler.openFile("cube.htm");
 			inputHandler.parse3dcgFile();
 			inputHandler.closeFileStream();
 			
 			if(OutputHandler.model != null) {
 				OutputHandler outputHandler = new OutputHandler();
 				outputHandler.openFile("out.obj");
-				
 				OutputHandler.exportOBJ();
+				outputHandler.closeFileStream();
+				
 				if(OutputHandler.mtl != null) {
-					//OutputHandler.exportMTL();
+					outputHandler.openFile("out.mtl");
+					OutputHandler.exportMTL();
+					outputHandler.closeFileStream();
+					
+					//outputHandler.openFile(OutputHandler.mtl.getMap_Kd());
+					
+					
 				}
+				else System.out.println("mtl data is null");
 				
 				outputHandler.closeFileStream();
 			}
 			else {
-				System.out.println("Error processing file.");
+				System.out.println("Error processing file. Please verify a model exists at this location.");
 			}
 		}
 		catch (IOException e) {
+			System.out.println("Error opening stream. Please check your internet connection.");
 			e.printStackTrace();
 		}
 	}

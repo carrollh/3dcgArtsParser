@@ -11,10 +11,10 @@ import java.util.LinkedList;
 
 import fileIO.InputHandler;
 
-public abstract class Parser {
+public abstract class ParserOLD {
 	private static String[] objData;
 	private static int readhead = 0;
-	private static String facetype;
+	private static String modeltype;
 	private static String mtlData = "";
 	
 	/**
@@ -24,8 +24,8 @@ public abstract class Parser {
 	 * test cases handle the normal objData differently.
 	 * @return
 	 */
-	public static Model parseModel() {
-		return new Model(parseFaces(),
+	public static ModelOLD parseModel() {
+		return new ModelOLD(parseFaces(),
 						 parseNormalIndices(),
 						 parseVertices(),
 						 parseNormals(),
@@ -53,7 +53,7 @@ public abstract class Parser {
 
 		while(readhead < objData.length) {
 
-			facetype = objData[readhead++];
+			modeltype = objData[readhead++];
 			output.add(parseSingleFace());
 							
 			if(objData[readhead - 1].charAt(0) == '[') {
@@ -74,9 +74,9 @@ public abstract class Parser {
 	private static IndexSet parseSingleFace() {
 		int[] vertIndices = null;
 		
-		if(facetype.equals("43") || facetype.equals("11")) 
+		if(modeltype.equals("43") || modeltype.equals("11")) 
 			vertIndices = parseQuad();
-		else if(facetype.equals("42") || facetype.equals("10"))
+		else if(modeltype.equals("42") || modeltype.equals("10"))
 			vertIndices = parseTri();
 		
 		return new IndexSet(vertIndices);
@@ -90,8 +90,8 @@ public abstract class Parser {
 	private static int[] parseQuad() {
 		int[] output = parse4Ints();
 		
-		if(facetype.equals("43")) readhead += 9;
-		else if(facetype.equals("11")) readhead += 5;
+		if(modeltype.equals("43")) readhead += 9;
+		else if(modeltype.equals("11")) readhead += 5;
 	
 		return output;
 	}
@@ -104,8 +104,8 @@ public abstract class Parser {
 	private static int[] parseTri() {
 		int[] output = parse3Ints();
 
-		if(facetype.equals("42")) readhead += 7;
-		else if(facetype.equals("10")) readhead += 4;
+		if(modeltype.equals("42")) readhead += 7;
+		else if(modeltype.equals("10")) readhead += 4;
 		
 		return output;
 	}
@@ -139,7 +139,7 @@ public abstract class Parser {
 
 		while(readhead < objData.length) {
 
-			facetype = objData[readhead++];
+			modeltype = objData[readhead++];
 			output.add(parseSingleNormalSet());
 		}
 		
@@ -156,7 +156,7 @@ public abstract class Parser {
 		IndexSet output = null;
 		int[] normalIndices = null;
 		
-		switch(facetype) {
+		switch(modeltype) {
 		case "42":
 				//readhead += 3;
 			readhead += 4;
@@ -241,21 +241,21 @@ public abstract class Parser {
 		return output;
 	} 
 	
-	private static LinkedList<Material> parseMaterials() {
-		LinkedList<Material> output = new LinkedList<Material>();
+	private static LinkedList<MaterialOLD> parseMaterials() {
+		LinkedList<MaterialOLD> output = new LinkedList<MaterialOLD>();
 		System.out.println("parsing materials...");
 			
 		
 		return output;
 	}
 	
-	public static Material parseMTL() {
+	public static MaterialOLD parseMTL() {
 		
 		int start = InputHandler.input.indexOf("materials") + 13;
 		int end = InputHandler.input.indexOf("morphColors") - 4;
 		mtlData = InputHandler.input.substring(start, end);
 		
-		return new Material(parseString("DbgName\":\""), 
+		return new MaterialOLD(parseString("DbgName\":\""), 
 							parseFloat("specularCoef\":"),
 							parsePoint3D("colorAmbient\":["),
 							parsePoint3D("colorDiffuse\":["),
@@ -278,7 +278,7 @@ public abstract class Parser {
 	
 	private static float parseFloat(String query) {
 		int start = mtlData.indexOf(query);
-		System.out.println("trying to find: " + query);
+		//System.out.println("trying to find: " + query);
 		String temp = mtlData.substring(start);
 		int end = temp.indexOf(",");
 		if(end < 0) end = temp.length() - 1;

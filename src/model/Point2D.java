@@ -12,8 +12,8 @@ public class Point2D {
 	private float u;
 	private float v;
 	
-	protected float getU() { return u; }
-	protected float getV() { return v; }
+	public float getU() { return u; }
+	public float getV() { return v; }
 	
 	public Point2D(float u, float v) 
 	{

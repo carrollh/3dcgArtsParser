@@ -1,0 +1,9 @@
+newmtl Material
+Ns 15.686275
+Ka 0.0 0.0 0.0
+Kd 0.64 0.64 0.64
+Ks 0.0 0.0 0.0
+Ni 1.0
+d 0.0
+illum 2
+map_Kd photo.png

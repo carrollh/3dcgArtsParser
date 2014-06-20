@@ -10,14 +10,14 @@ package model;
 
 import java.util.LinkedList;
 
-public class Model {
+public class ModelOLD {
 	
 	LinkedList<IndexSet> faces;
 	LinkedList<IndexSet> normalIndices;
 	LinkedList<Point3D> vertices;
 	LinkedList<Point3D> normals;
 	LinkedList<Point2D> uvs;
-	LinkedList<Material> materials;
+	LinkedList<MaterialOLD> materials;
 	
 	public LinkedList<IndexSet> getFaces() {
 		return faces;
@@ -39,16 +39,16 @@ public class Model {
 		return uvs;
 	}
 
-	public LinkedList<Material> getMaterials() {
+	public LinkedList<MaterialOLD> getMaterials() {
 		return materials;
 	}
 
-	public Model(LinkedList<IndexSet> faces,
+	public ModelOLD(LinkedList<IndexSet> faces,
 				 LinkedList<IndexSet> normalIndices,
 				 LinkedList<Point3D> vertices, 
 				 LinkedList<Point3D> normals,
 				 LinkedList<Point2D> uvs,
-				 LinkedList<Material> materials) {
+				 LinkedList<MaterialOLD> materials) {
 		
 		this.faces = faces;
 		this.normalIndices = normalIndices;

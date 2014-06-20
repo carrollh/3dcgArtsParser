@@ -1,64 +1,49 @@
-/** Material
- * 
- * Struct-like class to hold all material 
- * attributes for a mesh. Things like the 
- * specularity, ambient light, and texture maps 
- * to use are stored in here.
- * 
- * @author carrollh
- *
- */
-
 package model;
 
+import java.util.List;
+
 public class Material {
-	private String name = "";
-	private float ns;
-	private Point3D ka;
-	private Point3D kd;
-	private Point3D ks;
-	private float ni;
-	private float d;
-	private byte illum;
-	private String map_Kd;
-	public String getName() {
-		return name;
+	private List colorAmbient;
+   	private List colorDiffuse;
+   	private List colorSpecular;
+   	private String mapDiffuse;
+   	private Number specularCoef;
+   	private Number transparency;
+   	
+   	public List getColorAmbient(){
+		return this.colorAmbient;
 	}
-	public float getNs() {
-		return ns;
+	public void setColorAmbient(List colorAmbient){
+		this.colorAmbient = colorAmbient;
 	}
-	public Point3D getKa() {
-		return ka;
+ 	public List getColorDiffuse(){
+		return this.colorDiffuse;
 	}
-	public Point3D getKd() {
-		return kd;
+	public void setColorDiffuse(List colorDiffuse){
+		this.colorDiffuse = colorDiffuse;
 	}
-	public Point3D getKs() {
-		return ks;
+ 	public List getColorSpecular(){
+		return this.colorSpecular;
 	}
-	public float getNi() {
-		return ni;
+	public void setColorSpecular(List colorSpecular){
+		this.colorSpecular = colorSpecular;
 	}
-	public float getD() {
-		return d;
+ 	public String getMapDiffuse(){
+		return this.mapDiffuse;
 	}
-	public byte getIllum() {
-		return illum;
+	public void setMapDiffuse(String mapDiffuse){
+		this.mapDiffuse = mapDiffuse;
 	}
-	public String getMap_Kd() {
-		return map_Kd;
+	public Number getSpecularCoef(){
+		return this.specularCoef;
 	}
-	
-	public Material(String name, float ns, Point3D ka, Point3D kd, Point3D ks,
-					float ni, float d, byte illum, String map_Kd) {
-		this.name = name;
-		this.ns = ns;
-		this.ka = ka;
-		this.kd = kd;
-		this.ks = ks;
-		this.ni = ni;
-		this.d = d;
-		this.illum = illum;
-		this.map_Kd = map_Kd;
+	public void setSpecularCoef(Number specularCoef){
+		this.specularCoef = specularCoef;
+	}
+ 	public Number getTransparency(){
+		return this.transparency;
+	}
+	public void setTransparency(Number transparency){
+		this.transparency = transparency;
 	}
 }
